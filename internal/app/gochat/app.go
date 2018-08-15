@@ -4,8 +4,8 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
-	"github.com/urfave/cli/altsrc"
+	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 const (
@@ -25,31 +25,47 @@ func init() {
 	app.Name = appName
 	app.Usage = appUsage
 
-	// Define a fxn to use if cmd isn't recognized
-	app.CommandNotFound = func(ctx *cli.Context, cmd string) {
-		log.Printf("unknown command - %v \n\n", cmd)
-		cli.ShowAppHelp(ctx)
-	}
-
-	app.Flags = []cli.Flag{
+	// Captures all of the flags that are supported by this application
+	// Some support definition via a yaml file, those are marked with the
+	// `altsrc` wrapping
+	flags := []cli.Flag{
+		cli.StringFlag{
+			Name:  "config",
+			Usage: "path to YAML `FILE` for config",
+		},
 		altsrc.NewIntFlag(cli.IntFlag{
-			Name:  "port, p",
-			Usage: "port to listen on",
+			Name:  "port",
+			Usage: "`PORT` to listen on",
 			Value: 8080,
 		}),
 		altsrc.NewStringFlag(cli.StringFlag{
-			Name:  "ip, i",
+			Name:  "ip",
 			Usage: "IP address to listen on",
 			Value: "127.0.0.1",
 		}),
 		altsrc.NewStringFlag(cli.StringFlag{
-			Name:  "logfile, l",
-			Usage: "output path for server logs",
+			Name:  "logfile",
+			Usage: "output `FILE` for server logs",
 			Value: "log.txt",
 		}),
 	}
 
-	app.Before = altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("config, c"))
+	app.Flags = flags
+
+	app.Before = func(c *cli.Context) error {
+		if _, err := os.Stat(c.String("config")); os.IsNotExist(err) {
+			return nil
+		}
+
+		return altsrc.InitInputSourceWithContext(flags, altsrc.NewYamlSourceFromFlagFunc("config"))(c)
+	}
+
+	app.Action = func(c *cli.Context) error {
+		for _, f := range flags {
+			log.Println(c.Generic(f.GetName()))
+		}
+		return nil
+	}
 }
 
 // Run - Starts the server app and handles all of the flag parsing
