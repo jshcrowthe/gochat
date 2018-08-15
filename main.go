@@ -29,14 +29,6 @@ type ServerConfig struct {
 	LogFile *string `json:"logfile,omitempty"`
 }
 
-func init() {
-	// Register all of the supported command line arguments
-	flag.StringVar(&config, "config", "", "Path to a JSON file used to configure the server")
-	flag.IntVar(&port, "port", 8080, "Port to listen on")
-	flag.StringVar(&ip, "ip", "127.0.0.1", "IP address to listen on")
-	flag.StringVar(&logfile, "logfile", "log.txt", "Location of logfile")
-}
-
 func handleArgs() {
 	if config != "" {
 		// Validate path is valid
@@ -77,6 +69,14 @@ func handleArgs() {
 
 func drainLogQueue() {
 	fmt.Println("Writing queued logs to disk")
+}
+
+func init() {
+	// Register all of the supported command line arguments
+	flag.StringVar(&config, "config", "", "Path to a JSON file used to configure the server")
+	flag.IntVar(&port, "port", 8080, "Port to listen on")
+	flag.StringVar(&ip, "ip", "127.0.0.1", "IP address to listen on")
+	flag.StringVar(&logfile, "logfile", "log.txt", "Location of logfile")
 }
 
 func main() {
