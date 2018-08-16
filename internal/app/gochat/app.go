@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 
+	"github.com/jshcrowthe/gochat/internal/pkg/server"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
@@ -33,6 +34,10 @@ func init() {
 			Name:  "config",
 			Usage: "path to YAML `FILE` for config",
 		},
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "set debug mode for the application",
+		},
 		altsrc.NewIntFlag(cli.IntFlag{
 			Name:  "port",
 			Usage: "`PORT` to listen on",
@@ -53,7 +58,13 @@ func init() {
 	app.Flags = flags
 
 	app.Before = func(c *cli.Context) error {
+		// If the --debug flag is passed set the log level appropriately
+		if c.Bool("debug") {
+			log.SetLevel(log.DebugLevel)
+		}
+
 		if _, err := os.Stat(c.String("config")); os.IsNotExist(err) {
+			log.Debug("No config file passed")
 			return nil
 		}
 
@@ -61,9 +72,8 @@ func init() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		for _, f := range flags {
-			log.Println(c.Generic(f.GetName()))
-		}
+		server.Start(c.String("ip"), c.Int("port"), c.String("logfile"))
+
 		return nil
 	}
 }
