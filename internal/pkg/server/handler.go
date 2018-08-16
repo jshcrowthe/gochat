@@ -15,7 +15,7 @@ func readFromReader(reader *bufio.Reader) (string, error) {
 	return strings.TrimSpace(text), err
 }
 
-func handleClient(conn net.Conn, messages chan<- message, deadConns chan<- net.Conn) {
+func handleClient(conn net.Conn, messages chan<- message, newConns chan<- net.Conn, deadConns chan<- net.Conn) {
 	// Prompt client to identify themselves
 	conn.Write([]byte("Your Name: "))
 	reader := bufio.NewReader(conn)
@@ -28,6 +28,8 @@ func handleClient(conn net.Conn, messages chan<- message, deadConns chan<- net.C
 
 	// Welcome User
 	conn.Write([]byte(fmt.Sprintf("Welcome %s!\n", author)))
+
+	newConns <- conn
 
 	// Handle future incoming messages as text
 	for {
@@ -44,7 +46,7 @@ func handleClient(conn net.Conn, messages chan<- message, deadConns chan<- net.C
 		}
 	}
 
-	// Once loop has broken, consider connection closed
+	// Once loop breaks, connection is closed
 	deadConns <- conn
 }
 
@@ -57,10 +59,7 @@ func handleConnections(server net.Listener, messages chan<- message, newConns ch
 		}
 		log.Debugf("Client connected from: %v", conn.RemoteAddr())
 
-		// Announce the new connection to newConns channel
-		newConns <- conn
-
 		// Handle future interactions with this client
-		go handleClient(conn, messages, deadConns)
+		go handleClient(conn, messages, newConns, deadConns)
 	}
 }

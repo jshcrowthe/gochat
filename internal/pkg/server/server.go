@@ -3,8 +3,10 @@ package server
 import (
 	"fmt"
 	"net"
+	"os"
 	"time"
 
+	"github.com/mgutz/ansi"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,17 +34,36 @@ func Start(ip string, port int, logfile string) {
 	connCount := 0
 	activeConns := make(map[net.Conn]int)
 
+	// Setup file logger
+	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal("Unable to open logfile")
+	}
+	defer file.Close()
+
+	fLog := log.New()
+	fLog.Formatter = &log.JSONFormatter{}
+	fLog.Out = file
+
 	go handleConnections(server, msgs, newConns, deadConns)
 
 	for {
 		select {
 		case msg := <-msgs:
 			// TODO: Queue up appending message to logfile
+			go func(msg message) {
+				fLog.WithFields(log.Fields{
+					"author":           msg.Author,
+					"messageTimestamp": msg.Timestamp,
+				}).Info(msg.Text)
+			}(msg)
 
+			// Write the message to all active connections
 			for conn := range activeConns {
 				go func(conn net.Conn, msg message) {
-					conn.Write([]byte(`\33[2K`))
-					conn.Write([]byte(msg.Author + ": " + msg.Text + "\n"))
+					time := msg.Timestamp.Format("01/02/06 03:04PM")
+					prefix := ansi.Color(time+" "+msg.Author+">", "white")
+					conn.Write([]byte(prefix + " " + msg.Text + "\n"))
 				}(conn, msg)
 			}
 		case conn := <-newConns:
