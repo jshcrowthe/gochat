@@ -24,6 +24,7 @@ func Start(ip string, port int, logfile string) {
 		log.Fatal(err)
 	}
 	log.Infof("Server Listening on %v:%v - logs captured at %v", ip, port, logfile)
+	defer server.Close()
 
 	// Channels for communication across goroutines
 	msgs := make(chan message)

@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	appName    = "gochat"
-	appUsage   = "Telnet chat server written in golang"
-	appVersion = "1.0.0"
+	name    = "gochat"
+	usage   = "Telnet chat server written in golang"
+	version = "1.0.0"
 )
 
 var app *cli.App
@@ -22,9 +22,9 @@ func init() {
 	app = cli.NewApp()
 
 	// Define information about the application
-	app.Version = appVersion
-	app.Name = appName
-	app.Usage = appUsage
+	app.Version = version
+	app.Name = name
+	app.Usage = usage
 
 	// Captures all of the flags that are supported by this application
 	// Some support definition via a yaml file, those are marked with the
