@@ -9,6 +9,12 @@
 			"revisionTime": "2018-08-15T10:47:33Z"
 		},
 		{
+			"checksumSHA1": "EqroMGIdQ3z+qyzaYmrOJ7fNi6o=",
+			"path": "github.com/gorilla/websocket",
+			"revision": "3ff3320c2a1756a3691521efc290b4701575147c",
+			"revisionTime": "2018-08-16T22:18:03Z"
+		},
+		{
 			"checksumSHA1": "SEnjvwVyfuU2xBaOfXfwPD5MZqk=",
 			"path": "github.com/mattn/go-colorable",
 			"revision": "efa589957cd060542a26d2dd7832fd6a6c6c3ade",
