@@ -39,9 +39,14 @@ func init() {
 			Usage: "set debug mode for the application",
 		},
 		altsrc.NewIntFlag(cli.IntFlag{
-			Name:  "port",
-			Usage: "`PORT` to listen on",
+			Name:  "tcp-port",
+			Usage: "`PORT` to start TCP listener on",
 			Value: 8080,
+		}),
+		altsrc.NewIntFlag(cli.IntFlag{
+			Name:  "http-port",
+			Usage: "`PORT` to start HTTP listener on (also used for WebSocket implementation)",
+			Value: 8081,
 		}),
 		altsrc.NewStringFlag(cli.StringFlag{
 			Name:  "ip",
@@ -71,7 +76,7 @@ func init() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		server.Start(c.String("ip"), c.Int("port"), c.String("logfile"))
+		server.Start(c.String("ip"), c.Int("tcp-port"), c.String("logfile"))
 
 		return nil
 	}
