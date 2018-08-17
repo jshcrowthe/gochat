@@ -46,7 +46,6 @@ func init() {
 		altsrc.NewStringFlag(cli.StringFlag{
 			Name:  "ip",
 			Usage: "IP address to listen on",
-			Value: "127.0.0.1",
 		}),
 		altsrc.NewStringFlag(cli.StringFlag{
 			Name:  "logfile",

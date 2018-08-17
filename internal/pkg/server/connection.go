@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func handleConnections(server net.Listener) {
+func handleConnections(server net.Listener, msgs chan<- message) {
 	// Infinite loop that accepts all new clients
 	for {
 		conn, err := server.Accept()
@@ -16,6 +16,6 @@ func handleConnections(server net.Listener) {
 		log.Debugf("Client connected from: %v", conn.RemoteAddr())
 
 		// Handle future interactions with this client
-		go handleClient(conn)
+		go handleClient(conn, msgs)
 	}
 }

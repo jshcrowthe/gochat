@@ -9,23 +9,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func handleClient(conn net.Conn) {
+func handleClient(conn net.Conn, msgs chan<- message) {
 	// Prompt client to identify themselves
-	conn.Write([]byte("Your Name: "))
+	writeColorToConn(conn, "Your Name: ")
 	reader := bufio.NewReader(conn)
 
-	author, err := readFromReader(reader)
+	name, err := readFromReader(reader)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Welcome User
-	conn.Write([]byte(fmt.Sprintf("Welcome %s!\n", author)))
+	count := len(getConns())
+	writeColorToConn(conn, fmt.Sprintf("Welcome %s! - There are %d other connected users\n", name, count))
 
-	connsMutex.Lock()
-	conns[conn] = true
-	connsMutex.Unlock()
+	// Add connection to master list of connections and
+	// defer connection cleanup
+	addConn(conn)
+	defer deleteConn(conn)
 
 	// Handle future incoming messages as text
 	for {
@@ -36,14 +38,9 @@ func handleClient(conn net.Conn) {
 		}
 
 		msgs <- message{
-			Author:    author,
+			Author:    name,
 			Text:      text,
 			Timestamp: time.Now(),
 		}
 	}
-
-	// Once loop breaks, connection is closed
-	connsMutex.Lock()
-	delete(conns, conn)
-	connsMutex.Unlock()
 }
