@@ -15,7 +15,7 @@ func readFromReader(reader *bufio.Reader) (string, error) {
 	return strings.TrimSpace(text), err
 }
 
-func handleClient(conn net.Conn, messages chan<- message, newConns chan<- net.Conn, deadConns chan<- net.Conn) {
+func handleClient(conn net.Conn) {
 	// Prompt client to identify themselves
 	conn.Write([]byte("Your Name: "))
 	reader := bufio.NewReader(conn)
@@ -29,7 +29,9 @@ func handleClient(conn net.Conn, messages chan<- message, newConns chan<- net.Co
 	// Welcome User
 	conn.Write([]byte(fmt.Sprintf("Welcome %s!\n", author)))
 
-	newConns <- conn
+	connsMutex.Lock()
+	conns[conn] = true
+	connsMutex.Unlock()
 
 	// Handle future incoming messages as text
 	for {
@@ -39,7 +41,7 @@ func handleClient(conn net.Conn, messages chan<- message, newConns chan<- net.Co
 			break
 		}
 
-		messages <- message{
+		msgs <- message{
 			Author:    author,
 			Text:      text,
 			Timestamp: time.Now(),
@@ -47,10 +49,12 @@ func handleClient(conn net.Conn, messages chan<- message, newConns chan<- net.Co
 	}
 
 	// Once loop breaks, connection is closed
-	deadConns <- conn
+	connsMutex.Lock()
+	delete(conns, conn)
+	connsMutex.Unlock()
 }
 
-func handleConnections(server net.Listener, messages chan<- message, newConns chan<- net.Conn, deadConns chan<- net.Conn) {
+func handleConnections(server net.Listener) {
 	// Infinite loop that accepts all new clients
 	for {
 		conn, err := server.Accept()
@@ -60,6 +64,6 @@ func handleConnections(server net.Listener, messages chan<- message, newConns ch
 		log.Debugf("Client connected from: %v", conn.RemoteAddr())
 
 		// Handle future interactions with this client
-		go handleClient(conn, messages, newConns, deadConns)
+		go handleClient(conn)
 	}
 }
