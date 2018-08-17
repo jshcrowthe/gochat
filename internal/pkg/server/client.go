@@ -4,16 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
-
-func readFromReader(reader *bufio.Reader) (string, error) {
-	text, err := reader.ReadString('\n')
-	return strings.TrimSpace(text), err
-}
 
 func handleClient(conn net.Conn) {
 	// Prompt client to identify themselves
@@ -52,18 +46,4 @@ func handleClient(conn net.Conn) {
 	connsMutex.Lock()
 	delete(conns, conn)
 	connsMutex.Unlock()
-}
-
-func handleConnections(server net.Listener) {
-	// Infinite loop that accepts all new clients
-	for {
-		conn, err := server.Accept()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Debugf("Client connected from: %v", conn.RemoteAddr())
-
-		// Handle future interactions with this client
-		go handleClient(conn)
-	}
 }
