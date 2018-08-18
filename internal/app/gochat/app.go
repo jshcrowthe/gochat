@@ -3,7 +3,7 @@ package app
 import (
 	"os"
 
-	"github.com/jshcrowthe/gochat/internal/pkg/server/tcp"
+	"github.com/jshcrowthe/gochat/internal/pkg/tcp"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"

@@ -1,13 +1,13 @@
 package tcp
 
 import (
-	"net"
 	"os"
 
+	"github.com/jshcrowthe/gochat/internal/pkg/chat"
 	log "github.com/sirupsen/logrus"
 )
 
-func startChat(msgs <-chan message, logfile string) {
+func startChat(logfile string) {
 	// Setup file logger
 	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
@@ -20,22 +20,21 @@ func startChat(msgs <-chan message, logfile string) {
 	fLog.Out = file
 
 	for {
-		msg := <-msgs
+		msg := <-chat.MessagesChan
 		// Write message to logfile
-		go func(msg message) {
+		go func(msg chat.Message) {
 			fLog.WithFields(log.Fields{
-				"author":           msg.Author,
-				"messageTimestamp": msg.Timestamp,
+				"email":       msg.Email,
+				"nickname":    msg.Nickname,
+				"received_at": msg.Timestamp,
 			}).Info(msg.Text)
 		}(msg)
 
 		// Write the message to all active connections
-		for conn := range conns {
-			go func(conn net.Conn, msg message) {
-				time := msg.Timestamp.Format("01/02/06 03:04PM")
-				writeColorToConn(conn, time+" "+msg.Author+"> ")
-				writeToConn(conn, msg.Text+"\n")
-			}(conn, msg)
+		for client := range chat.GetClients()[chat.TCP] {
+			go func(client chat.Writeable, msg chat.Message) {
+				client.Write(msg)
+			}(client, msg)
 		}
 	}
 }
