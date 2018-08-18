@@ -49,7 +49,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 // Start - Registers HTTP handler
 func Start(ip string, port int) {
 	// filesystem handler for the web app
-	fs := http.FileServer(http.Dir("../../public"))
+	fs := http.FileServer(http.Dir("../../web"))
 	http.Handle("/", fs)
 
 	// Websocket endpoint
