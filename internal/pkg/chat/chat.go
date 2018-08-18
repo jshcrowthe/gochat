@@ -7,10 +7,10 @@ import (
 
 // Message - A struct that is used to describe all messages passed through the server
 type Message struct {
-	Email     string
-	Text      string
-	Nickname  string
-	Timestamp time.Time
+	Email     string    `json:"email"`
+	Text      string    `json:"text"`
+	Nickname  string    `json:"nickname"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // MessagesChan - A channel that is the primary message stream for the application
@@ -62,6 +62,27 @@ func GetClients() map[ConnectionType]map[Writeable]bool {
 	defer mutex.Unlock()
 
 	return clients
+}
+
+// GetClientCount - Gets the count of all connected clients
+func GetClientCount() int {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	sum := 0
+
+	for _, c := range clients {
+		if clients == nil {
+			continue
+		}
+
+		for clients := range c {
+			_ = clients
+			sum++
+		}
+	}
+
+	return sum
 }
 
 // Start - Starts the chat handling process

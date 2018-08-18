@@ -16,19 +16,28 @@ func readFromReader(reader *bufio.Reader) (string, error) {
 	return strings.TrimSpace(text), err
 }
 
+func prompt(conn net.Conn, r *bufio.Reader, s string) (string, error) {
+	writeColorToConn(conn, s)
+
+	return readFromReader(r)
+}
+
 func handleClient(conn net.Conn) {
-	// Prompt client to identify themselves
-	writeColorToConn(conn, "Your Name: ")
 	reader := bufio.NewReader(conn)
 
-	name, err := readFromReader(reader)
+	email, err := prompt(conn, reader, "Email: ")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	name, err := prompt(conn, reader, "Nickname: ")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Welcome User
-	count := len(chat.GetClients()[chat.TCP])
+
+	count := chat.GetClientCount()
 	writeColorToConn(conn, fmt.Sprintf("Welcome %s! - There are %d other connected users\n", name, count))
 
 	// Add connection to master list of connections and
@@ -48,6 +57,7 @@ func handleClient(conn net.Conn) {
 		}
 
 		chat.MessagesChan <- chat.Message{
+			Email:     email,
 			Nickname:  name,
 			Text:      text,
 			Timestamp: time.Now(),

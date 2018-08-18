@@ -5,6 +5,7 @@ import (
 
 	"github.com/jshcrowthe/gochat/internal/pkg/chat"
 	"github.com/jshcrowthe/gochat/internal/pkg/tcp"
+	"github.com/jshcrowthe/gochat/internal/pkg/websocket"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
@@ -77,7 +78,13 @@ func init() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		go tcp.Start(c.String("ip"), c.Int("tcp-port"), c.String("logfile"))
+		// Starts TCP connection handler
+		go tcp.Start(c.String("ip"), c.Int("tcp-port"))
+
+		// Starts websocket connection handler
+		go websocket.Start(c.String("ip"), c.Int("http-port"))
+
+		// Start chat
 		chat.Start()
 		return nil
 	}

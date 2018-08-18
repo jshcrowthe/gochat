@@ -23,6 +23,6 @@ func writeToConn(conn net.Conn, s string) {
 
 func (c Client) Write(msg chat.Message) {
 	time := msg.Timestamp.Format("01/02/06 03:04PM")
-	writeColorToConn(c.conn, time+" "+msg.Nickname+"> ")
+	writeColorToConn(c.conn, time+" "+msg.Nickname+" ("+msg.Email+")> ")
 	writeToConn(c.conn, msg.Text+"\n")
 }
