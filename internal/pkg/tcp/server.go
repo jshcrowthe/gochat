@@ -18,8 +18,5 @@ func Start(ip string, port int, logfile string) {
 	log.Infof("Server Listening on %v - logs captured at %v", address, logfile)
 	defer server.Close()
 
-	go handleConnections(server)
-
-	// This is the main "keep-alive" process
-	startChat(logfile)
+	handleConnections(server)
 }

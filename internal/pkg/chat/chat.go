@@ -63,3 +63,20 @@ func GetClients() map[ConnectionType]map[Writeable]bool {
 
 	return clients
 }
+
+// Start - Starts the chat handling process
+func Start() {
+	for {
+		msg := <-MessagesChan
+
+		for _, c := range clients {
+			if clients == nil {
+				continue
+			}
+
+			for client := range c {
+				go client.Write(msg)
+			}
+		}
+	}
+}

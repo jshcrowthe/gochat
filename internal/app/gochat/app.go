@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 
+	"github.com/jshcrowthe/gochat/internal/pkg/chat"
 	"github.com/jshcrowthe/gochat/internal/pkg/tcp"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
@@ -76,8 +77,8 @@ func init() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		tcp.Start(c.String("ip"), c.Int("tcp-port"), c.String("logfile"))
-
+		go tcp.Start(c.String("ip"), c.Int("tcp-port"), c.String("logfile"))
+		chat.Start()
 		return nil
 	}
 }
