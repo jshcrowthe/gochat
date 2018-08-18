@@ -85,7 +85,7 @@ func init() {
 		go websocket.Start(c.String("ip"), c.Int("http-port"))
 
 		// Start chat
-		chat.Start()
+		chat.Start(c.String("logfile"))
 		return nil
 	}
 }

@@ -1,8 +1,11 @@
 package chat
 
 import (
+	"os"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Message - A struct that is used to describe all messages passed through the server
@@ -86,9 +89,32 @@ func GetClientCount() int {
 }
 
 // Start - Starts the chat handling process
-func Start() {
+func Start(logfile string) {
+	// Setup file logger
+	var m sync.Mutex
+	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal("Unable to open logfile")
+	}
+	defer file.Close()
+
+	fileLog := log.New()
+	fileLog.Formatter = &log.JSONFormatter{}
+	fileLog.Out = file
+
 	for {
 		msg := <-MessagesChan
+
+		// Write the message to disk
+		go func(msg Message) {
+			m.Lock()
+			fileLog.WithFields(log.Fields{
+				"email":       msg.Email,
+				"nickname":    msg.Nickname,
+				"received_at": msg.Timestamp,
+			}).Info(msg.Text)
+			m.Unlock()
+		}(msg)
 
 		for _, c := range clients {
 			if clients == nil {
