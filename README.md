@@ -74,3 +74,7 @@ In addition to these, all of the packages enumerated in `vendor/vendor.json` (an
 ### Third Pary Code
 
 Most of the code was written after study of the above sources and the associated documentation. The web UI (located in `/web`) didn't seem like a critical piece of this exercise and as such is the UI from https://github.com/scotch-io/go-realtime-chat adapted to the messages structure of our application. 
+
+## Usage
+
+After starting the server you can connect via telnet, or in the browser via the provided web interface (available at the root of the HTTP server started by the `gochat` command). Simply provide your email, and a nickname, and you're off!
