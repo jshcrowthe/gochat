@@ -7,6 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// handleConnections - Continually accepts connections from a
+// server and spawns goroutines to handle each connected client
 func handleConnections(server net.Listener) {
 	// Infinite loop that accepts all new clients
 	for {

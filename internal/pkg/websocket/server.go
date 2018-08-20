@@ -51,16 +51,12 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 // Start - Registers HTTP handler
 func Start(ip string, port int) {
 	// filesystem handler for the web app
-
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		log.Fatal("Couldn't start webserver, couldn't resolve Caller path")
 	}
 	filepath := path.Join(path.Dir(filename), "../../../web")
 
-	log.Info(filepath)
-
-	// TODO: Fix the filepath here
 	fs := http.FileServer(http.Dir(filepath))
 	http.Handle("/", fs)
 

@@ -11,17 +11,22 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// readFromReader - given a Reader, reads the string (terminated
+// with a newline), trims the string, and returns the result
 func readFromReader(reader *bufio.Reader) (string, error) {
 	text, err := reader.ReadString('\n')
 	return strings.TrimSpace(text), err
 }
 
+// prompt - Prompts the user over a TCP connection for some input
 func prompt(conn net.Conn, r *bufio.Reader, s string) (string, error) {
 	writeColorToConn(conn, s)
 
 	return readFromReader(r)
 }
 
+// handleClient - Prompts the new telnet user for some information
+// and then continues to accept input from the user
 func handleClient(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 
@@ -56,6 +61,8 @@ func handleClient(conn net.Conn) {
 			break
 		}
 
+		// Send new messages to the main MessagesChan for
+		// rebroadcast to other users
 		chat.MessagesChan <- chat.Message{
 			Email:     email,
 			Nickname:  name,

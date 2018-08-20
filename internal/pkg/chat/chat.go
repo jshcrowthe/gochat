@@ -94,7 +94,7 @@ func GetClientCount() int {
 
 // Start - Starts the chat handling process
 func Start(logfile string) {
-	// Setup file logger
+	// Setup a file logger
 	var m sync.Mutex
 	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if err != nil {
@@ -106,10 +106,13 @@ func Start(logfile string) {
 	fileLog.Formatter = &log.JSONFormatter{}
 	fileLog.Out = file
 
+	// Infinite loop to keep process alive
 	for {
+
+		// Receive a message from the `MessagesChan`
 		msg := <-MessagesChan
 
-		// Write the message to disk
+		// Write the message as a log to disk
 		go func(msg Message) {
 			m.Lock()
 			fileLog.WithFields(log.Fields{
@@ -120,6 +123,8 @@ func Start(logfile string) {
 			m.Unlock()
 		}(msg)
 
+		// Loop through all connected clients, of all types, and call
+		// their respective `write` functions
 		for _, c := range clients {
 			if clients == nil {
 				continue
