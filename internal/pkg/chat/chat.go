@@ -16,7 +16,11 @@ type Message struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// MessagesChan - A channel that is the primary message stream for the application
+// MessagesChan - T primary message stream for the application
+// NOTE: To support more than one channel convert you could
+// refactor this from a `chan Message` to a
+// `map[string]chan Message` and track the active channel
+// for each connected client
 var MessagesChan = make(chan Message)
 
 // Writeable - A writeable connection
